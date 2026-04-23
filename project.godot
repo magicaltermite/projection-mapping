@@ -20,7 +20,7 @@ project/assembly_name="ProjectionMapping"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot-sqlite/plugin.cfg", "res://addons/godottpd/plugin.cfg")
+enabled=PackedStringArray("res://addons/cesium_godot/plugin.cfg", "res://addons/godot-sqlite/plugin.cfg", "res://addons/godottpd/plugin.cfg")
 
 [file_customization]
 
