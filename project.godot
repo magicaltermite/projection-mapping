@@ -1,0 +1,44 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="ProjectionMapping"
+run/main_scene="uid://dl3758uwv6yb0"
+config/features=PackedStringArray("4.6", "C#", "Forward Plus")
+
+[dotnet]
+
+project/assembly_name="ProjectionMapping"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot-sqlite/plugin.cfg", "res://addons/godottpd/plugin.cfg")
+
+[file_customization]
+
+folder_colors={
+"res://Scenes/": "blue",
+"res://Scripts/": "green",
+"res://addons/": "gray"
+}
+
+[navigation]
+
+3d/default_cell_size=0.08
+3d/default_cell_height=0.1
+
+[physics]
+
+3d/physics_engine="Jolt Physics"
+
+[rendering]
+
+rendering_device/driver.windows="d3d12"

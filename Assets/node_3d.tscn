@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://cn44s84s16g8g"]
+
+[ext_resource type="NavigationMesh" uid="uid://cbut3ox0dymke" path="res://Assets/sdu_nav_mesh_backup.res" id="1_3xulp"]
+
+[node name="Node3D" type="Node3D" unique_id=463194309]
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=1687130505]
+navigation_mesh = ExtResource("1_3xulp")
