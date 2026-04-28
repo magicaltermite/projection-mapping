@@ -11,23 +11,25 @@ config_version=5
 [application]
 
 config/name="ProjectionMapping"
-run/main_scene="uid://dl3758uwv6yb0"
+run/main_scene="res://scenes/bootstrap/Bootstrap.tscn"
 config/features=PackedStringArray("4.6", "C#", "Forward Plus")
+
+[autoload]
+
+Network="*res://autoloads/Network.gd"
+SessionState="*res://autoloads/SessionState.gd"
 
 [dotnet]
 
 project/assembly_name="ProjectionMapping"
 
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/godot-sqlite/plugin.cfg", "res://addons/godottpd/plugin.cfg")
-
 [file_customization]
 
 folder_colors={
-"res://Scenes/": "blue",
-"res://Scripts/": "green",
-"res://addons/": "gray"
+"res://addons/": "gray",
+"res://autoloads/": "yellow",
+"res://scenes/": "blue",
+"res://shaders/": "red"
 }
 
 [navigation]

@@ -1,0 +1,239 @@
+# Campus Navigation — Setup & Documentation
+
+Real-time holographic navigation for SDU Cheese (Tek) building. Visitors scan a card at
+a stand; projectors mounted around the building project animated path arrows
+onto floors and walls guiding them to their destination.
+
+---
+
+## Hardware requirements
+
+| Machine | Role | Projector |
+|---|---|---|
+| Laptop A | Server | Projector A |
+| Laptop B | Client | Projector B |
+
+Both laptops run the same Godot project. Role is selected on first launch and
+saved locally -> no separate builds.
+
+**Network:** Both machines must be on the same network.
+Only the server's IP needs to be known in advance.
+
+Windows -> PowerShell or cmd -> ipconfig
+Linux -> Terminal -> ip -c address
+MacOS -> Terminal -> ipconfig getifaddr en0
+
+---
+
+## First launch on both machines
+
+On first launch, every machine steps through three stages in sequence.
+Config is saved locally after each stage and is not repeated on subsequent runs.
+If all config files already exist -> boot straight into the final scene.
+
+### Stage 1 — Role panel
+
+| Field | Server machine | Client machine |
+|---|---|---|
+| Role | Server | Client |
+| Server IP | — | IP of Laptop A |
+
+Press **Next**.
+
+### Stage 2 — Projector panel (same for both machines)
+
+Measure the physical projector position from a known reference point in the
+digital twin (e.g. a wall corner or column that exists in both the real building
+and the Godot scene). -> e.g. corner of corridor to door frame
+
+| Field | How to measure |
+|---|---|
+| X | Horizontal distance (metres) from reference point |
+| Y | Height (metres) from floor |
+| Z | Depth (metres) from reference point |
+| Heading | Horizontal rotation in degrees (0° = +Z axis in twin) |
+
+Pitch and roll are fixed by the 3D-printed mounts and do not need to be entered. -> 3D-printed mounts need to be finalized.
+
+Press **Save & Launch** to proceed to calibration.
+
+### Stage 3 — Calibration (same for both machines)
+
+The calibration scene opens automatically after stage 2. It shows:
+
+- **Left panel (laptop screen):** live preview of what the Camera3D sees inside
+  the digital twin.
+- **Right panel:** SpinBoxes for X, Y, Z (metres) and Heading (degrees).
+  Changes apply to the camera immediately.
+- **Projector (second display):** a fullscreen borderless window showing the
+  same camera view on the physical surface. If only one display is connected,
+  the window appears on the same screen : useful for testing without a projector.
+
+**Alignment procedure:**
+1. Look at the physical projection on the floor/wall.
+2. Adjust SpinBoxes until virtual building edges land on their physical
+   counterparts (doorframes, wall corners, column edges).
+3. Press **Save & Launch** — values are written to `user://projector.json` and
+   the application launches into its final scene.
+
+---
+
+## Subsequent launches
+
+Both config files are present : the application skips straight to the server or
+client scene with no UI shown.
+
+---
+
+## Reconfiguration
+
+| What changed | Action |
+|---|---|
+| Role or server IP | Delete `user://config.json` and relaunch |
+| Projector moved or remounted | Delete `user://projector.json` and relaunch |
+
+On Linux, `user://` resolves to:
+`~/.local/share/godot/app_userdata/ProjectionMapping/`
+
+On Windows, `user://` resolves to:
+`%APPDATA%\Godot\app_userdata\ProjectionMapping`
+
+On MacOS `user://` resolves to:
+`~/Library/Application Support/Godot/app_userdata/ProjectionMapping`
+
+On FreeBSD you're cooked.
+
+---
+
+## Config file reference
+
+**`user://config.json`** — written by the role panel
+```json
+{ "role": "server" }
+```
+```json
+{ "role": "client", "server_ip": "192.168.1.x" }
+```
+
+**`user://projector.json`** — written by the projector panel, same format on
+every machine
+```json
+{ "x": 3.2, "y": 2.8, "z": 1.1, "heading": -42.0 }
+```
+
+---
+
+## Architecture overview
+
+```mermaid
+flowchart LR
+    CARD["Card Reader\n(Arduino)"]
+
+    subgraph SERVER["Laptop A — Server"]
+        direction TB
+        NAV["NavigationRegion3D\ndigital twin + navmesh"]
+        SS_S["SessionState\nactive_paths"]
+        PRA["PathRenderer\n→ Projector A"]
+    end
+
+    subgraph CLIENT["Laptop B — Client"]
+        direction TB
+        SS_C["SessionState\nactive_paths"]
+        PRB["PathRenderer\n→ Projector B"]
+    end
+
+    CARD -->|"card scan"| NAV
+    NAV -->|"MapGetPath()"| SS_S
+    SS_S --> PRA
+    SS_S -->|"RPC over ENet\ncampus WiFi"| SS_C
+    SS_C --> PRB
+```
+
+**Autoloads (on every peer):**
+
+- `Network` : thin ENet wrapper; only place that touches
+  `multiplayer.multiplayer_peer`
+- `SessionState` : holds `active_paths` and `path_progress`; owns the RPC that
+  replicates state from server to clients. Lives at `/root/SessionState` on all
+  peers so Godot's multiplayer routing works correctly.
+
+**Why RPCs are on SessionState, not on Server/Client:**
+Godot routes RPCs by node path. Server.tscn root is `/root/Server`; Client.tscn
+root is `/root/Client` — different paths, so cross-peer RPCs between them would
+silently fail. Autoloads share the same path on all peers, which is why the RPC
+lives there.
+
+**Why no zone clipping:**
+Each client renders the full path in 3D from its projector's camera perspective.
+Godot's frustum culling discards anything outside that camera's view for free.
+Where projectors overlap, both render : which should look seamless.
+
+---
+
+## Card reader integration (future)
+
+The Arduino stand is TODO.
+Connects over WiFi and triggers a navigation session by calling one endpoint on the server.
+The server computes the path from the stand location to the requested destination
+using `NavigationServer3D.MapGetPath()`, writes it into `SessionState.active_paths`,
+and calls `broadcast_state()` to push it to all clients.
+
+---
+
+## 3D-printed mounts (future)
+
+We need to 3D-print a set of mounts for the projectors in order to ensure that they have similar orientations.
+This is such that the only factors that vary between projectors are : physical location, and heading.
+
+TODO:
+- Physical measurements of projectors ensuring snug fit
+- Tripod head mounting system for the bottoms, such that projectors can be put on tripods.
+- Measure angles of the mounts such that they can be hardcoded. (Good design :>)
+
+---
+
+## Project structure
+
+```
+(Thanks, ramanthelan)
+projection-mapping/
+├── SETUP.md                  : this file
+├── project.godot
+├── autoloads/
+│   ├── Network.gd            : ENet wrapper (autoload)
+│   └── SessionState.gd       : shared nav state + RPC (autoload)
+├── scenes/
+│   ├── bootstrap/
+│   │   ├── Bootstrap.gd      : first-launch config + scene routing
+│   │   └── Bootstrap.tscn
+│   ├── server/
+│   │   ├── Server.gd         : ENet host, path computation
+│   │   └── Server.tscn       : digital twin lives here
+│   ├── client/
+│   │   ├── Client.gd         : ENet peer, path rendering
+│   │   └── Client.tscn
+│   ├── calibration/
+│   │   ├── Calibration.gd    : dual-display alignment tool
+│   │   └── Calibration.tscn
+│   └── shared/
+│       └── PathRenderer      : (step 5) hologram ribbon + shader
+├── shaders/
+│   └── hologram_path.gdshader : (step 5) scrolling chevron effect
+└── assets/
+    └── tek/                  : digital twin meshes + navmesh
+        └── TekBuilding.tscn
+```
+
+---
+
+## Implementation status
+
+| Step | Description | Status |
+|---|---|---|
+| 1 | Bootstrap, Network, Server/Client scaffold | Done |
+| 2 | Digital twin in Server.tscn, path computation, path sync | In Progress |
+| 3 | PathRenderer - debug line rendering from projector camera | Next |
+| 3b | C a f f e i n e | 是的 |
+| 4 | Calibration scene - dual-display alignment, live SpinBox controls | Done |
+| 5 | Hologram shader - ribbon mesh, scrolling chevrons, bloom | - |
+| 6 | Arduino hook - card scan triggers navigation session | - |
