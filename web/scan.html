@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SDU Navigation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f1117;
+      color: #e8e8e8;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      padding: 32px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: #aaa;
+      text-transform: uppercase;
+    }
+
+    #card-icon {
+      font-size: 6rem;
+      line-height: 1;
+      transition: opacity 0.3s;
+    }
+
+    #instruction {
+      font-size: 1.6rem;
+      font-weight: 500;
+      text-align: center;
+      line-height: 1.4;
+      min-height: 2.8em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #sub {
+      font-size: 0.85rem;
+      color: #555;
+      text-align: center;
+      min-height: 1.4em;
+    }
+
+    /* States */
+    body.idle     #card-icon { opacity: 0.35; }
+    body.scanning #card-icon { animation: pulse 1.8s ease-in-out infinite; }
+    body.success  #card-icon { opacity: 1; }
+    body.error    #card-icon { opacity: 0.4; }
+
+    body.idle     #instruction { color: #666; }
+    body.scanning #instruction { color: #e8e8e8; }
+    body.success  #instruction { color: #5ddb97; }
+    body.error    #instruction { color: #f07070; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50%       { opacity: 1;   transform: scale(1.06); }
+    }
+
+    details {
+      position: fixed;
+      bottom: 24px;
+      font-size: 0.75rem;
+      color: #444;
+      max-width: 320px;
+      text-align: center;
+    }
+    details summary { cursor: pointer; }
+    details p { margin-top: 8px; line-height: 1.6; color: #555; }
+    code { background: #1c1f2b; padding: 2px 5px; border-radius: 3px; word-break: break-all; }
+  </style>
+</head>
+<body class="idle" onclick="activate()">
+
+  <h1>SDU Navigation</h1>
+
+  <div id="card-icon">🪪</div>
+
+  <div id="instruction">Tap screen to activate</div>
+  <div id="sub"></div>
+
+  <details onclick="event.stopPropagation()">
+    <summary>Setup / troubleshooting</summary>
+    <p>
+      Requires <strong>Chrome on Android</strong>.<br><br>
+      Whitelist the server once in Chrome flags:<br>
+      <code>chrome://flags/#unsafely-treat-insecure-origin-as-secure</code><br>
+      Add <code>http://&lt;server-ip&gt;:8080</code> → Relaunch.
+    </p>
+  </details>
+
+  <script>
+    let reader = null;
+    let scanning = false;
+    let cooldown = false;
+
+    const body        = document.body;
+    const instruction = document.getElementById('instruction');
+    const sub         = document.getElementById('sub');
+
+    function setState(state, msg, submsg = '') {
+      body.className  = state;
+      instruction.textContent = msg;
+      sub.textContent = submsg;
+    }
+
+    async function activate() {
+      if (scanning) return;
+
+      if (!('NDEFReader' in window)) {
+        setState('error',
+          'Web NFC not available.',
+          'Use Chrome on Android — see setup below.'
+        );
+        return;
+      }
+
+      try {
+        reader = new NDEFReader();
+        await reader.scan();
+        scanning = true;
+        setState('scanning', 'Hold campus card to phone');
+
+        reader.addEventListener('reading', ({ serialNumber }) => {
+          if (cooldown) return;
+          onCardRead(serialNumber);
+        });
+
+        reader.addEventListener('readingerror', () => {
+          setState('error', 'Could not read card.', 'Try again.');
+          setTimeout(() => setState('scanning', 'Hold campus card to phone'), 2500);
+        });
+
+      } catch (e) {
+        scanning = false;
+        setState('error', 'NFC error', e.message);
+      }
+    }
+
+    async function onCardRead(uid) {
+      cooldown = true;
+      setState('scanning', 'Card detected…', uid);
+
+      try {
+        const res  = await fetch('/navigate', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ uid }),
+        });
+        const data = await res.json();
+
+        if (res.ok && data.ok) {
+          setState('success',
+            '→ ' + (data.destination || 'your destination'),
+            'Follow the light'
+          );
+        } else {
+          setState('error',
+            'Card not registered.',
+            data.error || ''
+          );
+        }
+      } catch (fetchErr) {
+        setState('error', 'Server unreachable.', fetchErr.message);
+      }
+
+      setTimeout(() => {
+        cooldown = false;
+        setState('scanning', 'Hold campus card to phone');
+      }, 3500);
+    }
+  </script>
+</body>
+</html>

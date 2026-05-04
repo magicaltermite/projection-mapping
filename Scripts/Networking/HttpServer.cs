@@ -1,14 +1,3 @@
-using Godot;
-
+// The HTTP server is implemented in GDScript via the godottpd addon.
+// See Scripts/Networking/CardScanServer.gd and addons/godottpd/.
 namespace ProjectionMapping.Scripts.Networking;
-
-public partial class HttpServer : Node
-{
-	public override void _Ready() {
-		var gdHttpServer =
-			GD.Load<GDScript>(
-				"C:/Users/marku/Desktop/Mappe 1/SDU/8 Semester/Metaverse/projection-mapping/backend/addons/godottpd/http_server.gd");
-		var server = (HttpServer)gdHttpServer.New();
-		
-	}
-}

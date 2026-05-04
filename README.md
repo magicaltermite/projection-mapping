@@ -127,10 +127,11 @@ every machine
 
 ```mermaid
 flowchart LR
-    CARD["Card Reader\n(Arduino)"]
+    PHONE["Phone\n(Chrome + Web NFC)"]
 
     subgraph SERVER["Laptop A — Server"]
         direction TB
+        CSS["CardScanServer\nHTTP :8080"]
         NAV["NavigationRegion3D\ndigital twin + navmesh"]
         SS_S["SessionState\nactive_paths"]
         PRA["PathRenderer\n→ Projector A"]
@@ -142,7 +143,9 @@ flowchart LR
         PRB["PathRenderer\n→ Projector B"]
     end
 
-    CARD -->|"card scan"| NAV
+    PHONE -->|"GET /scan\n(serves HTML page)"| CSS
+    PHONE -->|"POST /navigate\n{uid}"| CSS
+    CSS -->|"navigation_requested\nsignal"| NAV
     NAV -->|"MapGetPath()"| SS_S
     SS_S --> PRA
     SS_S -->|"RPC over ENet\ncampus WiFi"| SS_C
@@ -170,13 +173,35 @@ Where projectors overlap, both render : which should look seamless.
 
 ---
 
-## Card reader integration (future)
+## Card reader MVP (phone + Web NFC)
 
-The Arduino stand is TODO.
-Connects over WiFi and triggers a navigation session by calling one endpoint on the server.
-The server computes the path from the stand location to the requested destination
-using `NavigationServer3D.MapGetPath()`, writes it into `SessionState.active_paths`,
-and calls `broadcast_state()` to push it to all clients.
+For the MVP the phone acts as an unattended kiosk stander.
+The server exposes a small HTTP server (`CardScanServer`, port 8080) alongside the
+ENet game server (port 7777).
+
+**Flow:**
+1. Phone (Chrome on Android) is opened to `http://<server-ip>:8080/scan` and left at the stand.
+2. Visitor taps the screen once to activate the NFC reader, then holds their campus card to the phone.
+3. The browser reads the card's NFC UID and POSTs `{ uid }` to `/navigate`.
+4. `Server.gd` looks up the UID in the schedule -> resolves the visitor's next scheduled classroom.
+5. Path is computed via `NavigationServer3D.MapGetPath()`, written to `SessionState`, broadcast to clients -> projectors light up.
+6. The phone UI shows the destination room for 3.5 s, then resets for the next visitor.
+
+**One-time phone setup (required — Web NFC needs a secure context):**
+
+1. Open `chrome://flags/#unsafely-treat-insecure-origin-as-secure`
+2. Add `http://<server-ip>:8080` to the allowlist
+3. Tap **Relaunch**
+
+This flag must be set once per device per network. iOS does not support Web NFC.
+
+### Card Registration (future)
+
+We need to be able to associate different UID's with different users for the demo. At the very least we should grab group member's UIDs and associate them in-table with a predetermined destination. ((For proof of concept :3))
+
+TODO:
+- Pre-populate the `users` table with `(name, nfc_uid)` rows before the demo.
+- The UID is printed to the Godot console on first scan so you can copy it.
 
 ---
 
@@ -197,7 +222,7 @@ TODO:
 ```
 (Thanks, ramanthelan)
 projection-mapping/
-├── SETUP.md                  : this file
+├── README.md                 : this file
 ├── project.godot
 ├── autoloads/
 │   ├── Network.gd            : ENet wrapper (autoload)
@@ -207,7 +232,7 @@ projection-mapping/
 │   │   ├── Bootstrap.gd      : first-launch config + scene routing
 │   │   └── Bootstrap.tscn
 │   ├── server/
-│   │   ├── Server.gd         : ENet host, path computation
+│   │   ├── Server.gd         : ENet host, path computation, card scan wiring
 │   │   └── Server.tscn       : digital twin lives here
 │   ├── client/
 │   │   ├── Client.gd         : ENet peer, path rendering
@@ -217,6 +242,11 @@ projection-mapping/
 │   │   └── Calibration.tscn
 │   └── shared/
 │       └── PathRenderer      : (step 5) hologram ribbon + shader
+├── Scripts/
+│   └── Networking/
+│       └── CardScanServer.gd : HTTP server — serves /scan page, handles /navigate
+├── web/
+│   └── scan.html             : phone NFC scan UI (served by CardScanServer)
 ├── shaders/
 │   └── hologram_path.gdshader : (step 5) scrolling chevron effect
 └── assets/
@@ -236,4 +266,5 @@ projection-mapping/
 | 3b | C a f f e i n e | 是的 |
 | 4 | Calibration scene - dual-display alignment, live SpinBox controls | Done |
 | 5 | Hologram shader - ribbon mesh, scrolling chevrons, bloom | - |
-| 6 | Arduino hook - card scan triggers navigation session | - |
+| ~6~ | ~~Arduino hook - card scan triggers navigation session~~ | CHANGED |
+| 6 | Chrome on android stand-in (pun intended) for stander | In Progress |
