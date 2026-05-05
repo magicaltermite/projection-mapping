@@ -5,8 +5,8 @@
 ##   - Reads user://projector.json (guaranteed present by Bootstrap) and
 ##     positions Camera3D to match the physical projector in the digital twin.
 ##   - Connects to the server via Network.connect_to_server().
-##   - Listens to SessionState.state_updated (step 2) to trigger redraws
-##     on PathRenderer whenever the server pushes a new path.
+##   - Listens to SessionState.state_updated and forwards active_paths to
+##     PathRenderer (Step 3) whenever the server pushes a new state.
 ##
 ## The client carries no navigation logic and holds no copy of the NavMesh.
 ## It only renders what the server tells it to render.
@@ -21,6 +21,7 @@ const PROJECTOR_CONFIG_PATH = "user://projector.json"
 func _ready() -> void:
 	Network.connected_to_server.connect(_on_connected)
 	Network.disconnected_from_server.connect(_on_disconnected)
+	SessionState.state_updated.connect(_on_state_updated)
 	_apply_projector_transform()
 	_connect_to_server()
 
@@ -43,3 +44,9 @@ func _on_connected() -> void:
 
 func _on_disconnected() -> void:
 	_status.text = "Lost connection to server"
+
+func _on_state_updated() -> void:
+	# Step 3: pass SessionState.active_paths to PathRenderer for rendering.
+	for session_id: int in SessionState.active_paths:
+		var path: PackedVector3Array = SessionState.active_paths[session_id]
+		print("[Client] Path update — session %d: %d waypoints" % [session_id, path.size()])

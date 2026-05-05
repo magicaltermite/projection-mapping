@@ -235,7 +235,7 @@ projection-mapping/
 │   │   ├── Server.gd         : ENet host, path computation, card scan wiring
 │   │   └── Server.tscn       : digital twin lives here
 │   ├── client/
-│   │   ├── Client.gd         : ENet peer, path rendering
+│   │   ├── Client.gd         : ENet peer, state sync -> PathRenderer (step 3)
 │   │   └── Client.tscn
 │   ├── calibration/
 │   │   ├── Calibration.gd    : dual-display alignment tool
@@ -261,7 +261,7 @@ projection-mapping/
 | Step | Description | Status |
 |---|---|---|
 | 1 | Bootstrap, Network, Server/Client scaffold | Done |
-| 2 | Digital twin in Server.tscn, path computation, path sync | In Progress |
+| 2 | Digital twin in Server.tscn, path computation, path sync | Done |
 | 3 | PathRenderer - debug line rendering from projector camera | Next |
 | 3b | C a f f e i n e | 是的 |
 | 4 | Calibration scene - dual-display alignment, live SpinBox controls | Done |
