@@ -1,26 +1,25 @@
-[gd_scene format=4]
+[gd_scene format=3 uid="uid://ucevqx6o5iyj"]
 
-[ext_resource type="Script" path="res://scenes/calibration/Calibration.gd" id="1"]
-[ext_resource type="PackedScene" path="res://Assets/tek/TekBuilding.tscn" id="2"]
+[ext_resource type="Script" uid="uid://bg5iwgwibnp03" path="res://scenes/calibration/Calibration.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://bqx8m30ekgupj" path="res://Assets/tek/TekBuilding.tscn" id="2"]
 
 [sub_resource type="Environment" id="Environment_1"]
 ambient_light_source = 2
 ambient_light_color = Color(1, 1, 1, 1)
-ambient_light_energy = 1.0
 
-[node name="Calibration" type="Node"]
+[node name="Calibration" type="Node" unique_id=2011952924]
 script = ExtResource("1")
 
-[node name="CalibViewport" type="SubViewport" parent="."]
+[node name="CalibViewport" type="SubViewport" parent="." unique_id=1870010388]
 size = Vector2i(1280, 720)
 render_target_update_mode = 4
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="CalibViewport"]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="CalibViewport" unique_id=2018259081]
 environment = SubResource("Environment_1")
 
-[node name="Sun" type="DirectionalLight3D" parent="CalibViewport"]
-transform = Transform3D(0.707, -0.5, 0.5, 0, 0.707, 0.707, -0.707, -0.5, 0.5, 0, 10, 0)
+[node name="CalibCamera" type="Camera3D" parent="CalibViewport" unique_id=766610647]
+transform = Transform3D(0.0019222979, 0.90172386, -0.43230817, -0.17433652, 0.4259908, 0.8877717, 0.9846842, 0.07366052, 0.15802222, 6.684864, 6.921681, -27.30464)
+current = true
+fov = 22.3
 
-[node name="CalibCamera" type="Camera3D" parent="CalibViewport"]
-
-[node name="TekBuilding" parent="CalibViewport" instance=ExtResource("2")]
+[node name="TekBuilding" parent="CalibViewport" unique_id=617156042 instance=ExtResource("2")]

@@ -53,7 +53,11 @@ var _nav_ready: bool = false
 @onready var _camera: Camera3D = $Camera3D
 @onready var _nav_region: NavigationRegion3D = $NavigationRegion3D
 
+var MOUNT_ROLL: float = 0
+var MOUNT_PITCH: float = -56
+
 func _ready() -> void:
+	NavigationServer3D.set_debug_enabled(true)
 	_apply_projector_transform()
 	var err = Network.start_server()
 	if err != OK:
@@ -89,8 +93,10 @@ func _apply_projector_transform() -> void:
 	var file = FileAccess.open(PROJECTOR_CONFIG_PATH, FileAccess.READ)
 	var proj: Dictionary = JSON.parse_string(file.get_as_text())
 	file.close()
-	_camera.position = Vector3(proj.get("x", 0.0), proj.get("y", 0.0), proj.get("z", 0.0))
-	_camera.rotation_degrees.y = proj.get("heading", 0.0)
+	#_camera.position = Vector3(proj.get("x", 0.0), proj.get("y", 0.0), proj.get("z", 0.0))
+	_camera.position = Vector3(1.1, 1.47, 0.76)
+	#_camera.rotation_degrees = Vector3(MOUNT_PITCH, proj.get("heading", 0.0), MOUNT_ROLL)
+	_camera.rotation_degrees = Vector3(-56.0, -72.0, 0)
 
 func _refresh_status() -> void:
 	_status.text = "Server running  |  clients: %d" % _client_count
@@ -121,5 +127,6 @@ func _navigate(uid: String, route_key: String) -> void:
 		return
 
 	SessionState.active_paths[uid.hash()] = path
+	SessionState.state_updated.emit()
 	broadcast_state()
 	print("[Server] Path: uid=%s  route=%s (%s)  %d waypoints" % [uid, route_key, route["label"], path.size()])

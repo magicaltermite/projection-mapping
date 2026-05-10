@@ -18,6 +18,9 @@ const PROJECTOR_CONFIG_PATH = "user://projector.json"
 @onready var _status: Label = $HUD/StatusLabel
 @onready var _camera: Camera3D = $Camera3D
 
+var MOUNT_PITCH: float = -52
+var MOUNT_ROLL: float = 0
+
 func _ready() -> void:
 	Network.connected_to_server.connect(_on_connected)
 	Network.disconnected_from_server.connect(_on_disconnected)
@@ -30,7 +33,7 @@ func _apply_projector_transform() -> void:
 	var proj: Dictionary = JSON.parse_string(file.get_as_text())
 	file.close()
 	_camera.position = Vector3(proj.get("x", 0.0), proj.get("y", 0.0), proj.get("z", 0.0))
-	_camera.rotation_degrees.y = proj.get("heading", 0.0)
+	_camera.rotation_degrees = Vector3(MOUNT_PITCH, proj.get("heading", 0.0), MOUNT_ROLL)
 
 func _connect_to_server() -> void:
 	var ip: String = SessionState.client_config.get("server_ip", "127.0.0.1")
@@ -46,7 +49,4 @@ func _on_disconnected() -> void:
 	_status.text = "Lost connection to server"
 
 func _on_state_updated() -> void:
-	# Step 3: pass SessionState.active_paths to PathRenderer for rendering.
-	for session_id: int in SessionState.active_paths:
-		var path: PackedVector3Array = SessionState.active_paths[session_id]
-		print("[Client] Path update — session %d: %d waypoints" % [session_id, path.size()])
+	pass

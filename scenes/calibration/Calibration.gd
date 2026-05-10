@@ -102,7 +102,7 @@ func _spawn_projector_window() -> void:
 
 	var tex_rect := TextureRect.new()
 	tex_rect.texture = _viewport.get_texture()
-	tex_rect.expand_mode = TextureRect.EXPAND_FILL_PARENT
+	tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	tex_rect.stretch_mode = TextureRect.STRETCH_SCALE
 	tex_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_proj_window.add_child(tex_rect)

@@ -2,11 +2,16 @@
 
 [ext_resource type="Script" uid="uid://baemgrgok33xe" path="res://scenes/server/Server.gd" id="1"]
 [ext_resource type="PackedScene" uid="uid://bqx8m30ekgupj" path="res://Assets/tek/TekBuilding.tscn" id="2_giwyf"]
+[ext_resource type="Script" uid="uid://5uxcqi0axbfm" path="res://scenes/shared/PathRenderer.gd" id="3_rkod7"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_rkod7"]
 
 [node name="Server" type="Node3D" unique_id=789814367]
 script = ExtResource("1")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1792999439]
+transform = Transform3D(0.30901697, 0.78846157, -0.53182405, 0, 0.5591929, 0.82903755, 0.95105654, -0.25618666, 0.1728001, 1.1, 1.47, 0.76)
+fov = 22.6
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=2081715891]
 
@@ -16,5 +21,16 @@ offset_top = 12.0
 offset_right = 600.0
 offset_bottom = 40.0
 text = "Starting server..."
+metadata/_edit_use_anchors_ = true
 
 [node name="NavigationRegion3D" parent="." unique_id=528279629 instance=ExtResource("2_giwyf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.624, -5.438, 27.707)
+
+[node name="PathRenderer" type="Node3D" parent="." unique_id=227317152]
+script = ExtResource("3_rkod7")
+
+[node name="Reference" type="Node3D" parent="." unique_id=669368409]
+transform = Transform3D(0.05533529, 0.070825934, 0.043837115, -0.07880107, 0.06156615, 0, -0.026988825, -0.034544118, 0.08987941, 1.1, 1.47, 0.76)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Reference" unique_id=2127882020]
+mesh = SubResource("BoxMesh_rkod7")
