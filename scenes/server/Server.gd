@@ -93,10 +93,10 @@ func _apply_projector_transform() -> void:
 	var file = FileAccess.open(PROJECTOR_CONFIG_PATH, FileAccess.READ)
 	var proj: Dictionary = JSON.parse_string(file.get_as_text())
 	file.close()
-	#_camera.position = Vector3(proj.get("x", 0.0), proj.get("y", 0.0), proj.get("z", 0.0))
-	_camera.position = Vector3(1.1, 1.47, 0.76)
-	#_camera.rotation_degrees = Vector3(MOUNT_PITCH, proj.get("heading", 0.0), MOUNT_ROLL)
-	_camera.rotation_degrees = Vector3(-56.0, -72.0, 0)
+	_camera.position = Vector3(proj.get("x", 0.0), proj.get("y", 0.0), proj.get("z", 0.0))
+	#_camera.position = Vector3(1.1, 1.47, 0.76)
+	_camera.rotation_degrees = Vector3(MOUNT_PITCH, proj.get("heading", 0.0), MOUNT_ROLL)
+	#_camera.rotation_degrees = Vector3(-56.0, -72.0, 0)
 
 func _refresh_status() -> void:
 	_status.text = "Server running  |  clients: %d" % _client_count
