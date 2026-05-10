@@ -127,29 +127,29 @@ every machine
 
 ```mermaid
 flowchart LR
-    PHONE["Phone\n(Chrome + Web NFC)"]
+	PHONE["Phone\n(Chrome + Web NFC)"]
 
-    subgraph SERVER["Laptop A — Server"]
-        direction TB
-        CSS["CardScanServer\nHTTP :8080"]
-        NAV["NavigationRegion3D\ndigital twin + navmesh"]
-        SS_S["SessionState\nactive_paths"]
-        PRA["PathRenderer\n→ Projector A"]
-    end
+	subgraph SERVER["Laptop A — Server"]
+		direction TB
+		CSS["CardScanServer\nHTTP :8080"]
+		NAV["NavigationRegion3D\ndigital twin + navmesh"]
+		SS_S["SessionState\nactive_paths"]
+		PRA["PathRenderer\n→ Projector A"]
+	end
 
-    subgraph CLIENT["Laptop B — Client"]
-        direction TB
-        SS_C["SessionState\nactive_paths"]
-        PRB["PathRenderer\n→ Projector B"]
-    end
+	subgraph CLIENT["Laptop B — Client"]
+		direction TB
+		SS_C["SessionState\nactive_paths"]
+		PRB["PathRenderer\n→ Projector B"]
+	end
 
-    PHONE -->|"GET /scan\n(serves HTML page)"| CSS
-    PHONE -->|"POST /navigate\n{uid}"| CSS
-    CSS -->|"navigation_requested\nsignal"| NAV
-    NAV -->|"MapGetPath()"| SS_S
-    SS_S --> PRA
-    SS_S -->|"RPC over ENet\ncampus WiFi"| SS_C
-    SS_C --> PRB
+	PHONE -->|"GET /scan\n(serves HTML page)"| CSS
+	PHONE -->|"POST /navigate\n{uid}"| CSS
+	CSS -->|"navigation_requested\nsignal"| NAV
+	NAV -->|"MapGetPath()"| SS_S
+	SS_S --> PRA
+	SS_S -->|"RPC over ENet\ncampus WiFi"| SS_C
+	SS_C --> PRB
 ```
 
 **Autoloads (on every peer):**
@@ -250,8 +250,8 @@ projection-mapping/
 ├── shaders/
 │   └── hologram_path.gdshader : (step 5) scrolling chevron effect
 └── assets/
-    └── tek/                  : digital twin meshes + navmesh
-        └── TekBuilding.tscn
+	└── tek/                  : digital twin meshes + navmesh
+		└── TekBuilding.tscn
 ```
 
 ---

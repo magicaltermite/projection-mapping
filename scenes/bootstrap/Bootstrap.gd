@@ -16,9 +16,9 @@
 ##   2. If projector.json missing -> show projector panel -> write projector.json
 ##   3. Both files present -> change scene to Server.tscn or Client.tscn
 ##
-## On first launch, step 2 is always followed by Calibration.tscn so the
-## operator can verify alignment before going live. Subsequent launches skip
-## straight to the final scene since projector.json already exists.
+## Every launch ends at Calibration.tscn so the operator can verify alignment
+## before going live. Calibration's "Save & Launch" button routes to the final
+## scene based on SessionState.client_config["role"].
 ##
 ## To reconfigure role:      delete user://config.json and relaunch.
 ## To recalibrate projector: delete user://projector.json and relaunch.
@@ -194,11 +194,8 @@ func _on_projector_confirmed() -> void:
 # Launch
 
 func _launch(config: Dictionary) -> void:
-	if config.get("role") == "server":
-		get_tree().change_scene_to_file(SERVER_SCENE)
-	else:
-		SessionState.client_config = config
-		get_tree().change_scene_to_file(CLIENT_SCENE)
+	SessionState.client_config = config
+	get_tree().change_scene_to_file(CALIBRATION_SCENE)
 
 # Helpers
 
