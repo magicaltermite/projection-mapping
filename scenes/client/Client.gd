@@ -18,8 +18,6 @@ const PROJECTOR_CONFIG_PATH = "user://projector.json"
 @onready var _status: Label = $HUD/StatusLabel
 @onready var _camera: Camera3D = $Camera3D
 
-var MOUNT_PITCH: float = -52
-var MOUNT_ROLL: float = 0
 var _proj_window: Window = null
 var _proj_viewport: SubViewport = null
 
@@ -36,7 +34,11 @@ func _apply_projector_transform() -> void:
 	var proj: Dictionary = JSON.parse_string(file.get_as_text())
 	file.close()
 	_camera.position = Vector3(proj.get("x", 0.0), proj.get("y", 0.0), proj.get("z", 0.0))
-	_camera.rotation_degrees = Vector3(MOUNT_PITCH, proj.get("heading", 0.0), MOUNT_ROLL)
+	_camera.rotation_degrees = Vector3(
+		proj.get("pitch",   -55.0),
+		proj.get("heading",   0.0),
+		proj.get("roll",      0.0)
+	)
 
 func _spawn_projector_window() -> void:
 	if OS.has_feature("editor"):

@@ -60,9 +60,6 @@ var _proj_viewport: SubViewport = null
 @onready var _nav_region: NavigationRegion3D = $NavigationRegion3D
 @onready var _stand: Node3D = $NavigationRegion3D/StandMarker3D
 
-var MOUNT_ROLL: float = 0
-var MOUNT_PITCH: float = -56
-
 func _ready() -> void:
 	NavigationServer3D.set_debug_enabled(true)
 	_apply_projector_transform()
@@ -102,7 +99,11 @@ func _apply_projector_transform() -> void:
 	var proj: Dictionary = JSON.parse_string(file.get_as_text())
 	file.close()
 	_camera.position = Vector3(proj.get("x", 0.0), proj.get("y", 0.0), proj.get("z", 0.0))
-	_camera.rotation_degrees = Vector3(MOUNT_PITCH, proj.get("heading", 0.0), MOUNT_ROLL)
+	_camera.rotation_degrees = Vector3(
+		proj.get("pitch",   -55.0),
+		proj.get("heading",   0.0),
+		proj.get("roll",      0.0)
+	)
 
 func _spawn_projector_window() -> void:
 	if OS.has_feature("editor"):

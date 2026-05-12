@@ -29,6 +29,8 @@ var _x_spin: SpinBox
 var _y_spin: SpinBox
 var _z_spin: SpinBox
 var _heading_spin: SpinBox
+var _pitch_spin: SpinBox
+var _roll_spin: SpinBox
 
 
 func _ready() -> void:
@@ -61,7 +63,9 @@ func _save_projector_config() -> void:
 		"x": _x_spin.value,
 		"y": _y_spin.value,
 		"z": _z_spin.value,
-		"heading": _heading_spin.value
+		"heading": _heading_spin.value,
+		"pitch": _pitch_spin.value,
+		"roll": _roll_spin.value,
 	}
 	var file = FileAccess.open(PROJECTOR_CONFIG_PATH, FileAccess.WRITE)
 	file.store_string(JSON.stringify(data, "\t"))
@@ -70,22 +74,22 @@ func _save_projector_config() -> void:
 
 # Camera --------------------------------
 
-func _mount_pitch() -> float:
-	var role: String = SessionState.client_config.get("role", "server")
-	return -56.0 if role == "server" else -52.0
-
 func _apply_camera(proj: Dictionary) -> void:
 	_camera.position = Vector3(
 		proj.get("x", 0.0),
 		proj.get("y", 0.0),
 		proj.get("z", 0.0)
 	)
-	_camera.rotation_degrees = Vector3(_mount_pitch(), proj.get("heading", 0.0), 0.0)
+	_camera.rotation_degrees = Vector3(
+		proj.get("pitch",   -55.0),
+		proj.get("heading",   0.0),
+		proj.get("roll",      0.0)
+	)
 
 
 func _on_value_changed(_v: float) -> void:
 	_camera.position = Vector3(_x_spin.value, _y_spin.value, _z_spin.value)
-	_camera.rotation_degrees = Vector3(_mount_pitch(), _heading_spin.value, 0.0)
+	_camera.rotation_degrees = Vector3(_pitch_spin.value, _heading_spin.value, _roll_spin.value)
 
 
 # Projector window --------------------------------
@@ -184,6 +188,8 @@ func _build_laptop_ui(proj: Dictionary) -> void:
 		["Y (m)",       -100.0, 100.0, 0.01, proj.get("y",       0.0)],
 		["Z (m)",       -100.0, 100.0, 0.01, proj.get("z",       0.0)],
 		["Heading (°)", -180.0, 180.0, 0.5,  proj.get("heading", 0.0)],
+		["Pitch (°)",    -90.0,   0.0, 0.5,  proj.get("pitch",  -55.0)],
+		["Roll (°)",     -30.0,  30.0, 0.5,  proj.get("roll",    0.0)],
 	]
 	var spins: Array[SpinBox] = []
 	for def in spin_defs:
@@ -205,10 +211,12 @@ func _build_laptop_ui(proj: Dictionary) -> void:
 		row.add_child(spin)
 		spins.append(spin)
 
-	_x_spin = spins[0]
-	_y_spin = spins[1]
-	_z_spin = spins[2]
+	_x_spin      = spins[0]
+	_y_spin      = spins[1]
+	_z_spin      = spins[2]
 	_heading_spin = spins[3]
+	_pitch_spin  = spins[4]
+	_roll_spin   = spins[5]
 
 	vbox.add_child(HSeparator.new())
 

@@ -52,8 +52,11 @@ and the Godot scene). -> e.g. corner of corridor to door frame
 | Y | Height (metres) from floor |
 | Z | Depth (metres) from reference point |
 | Heading | Horizontal rotation in degrees (0° = +Z axis in twin) |
+| Pitch | Vertical tilt in degrees (negative = pointing down at floor) |
+| Roll | Sideways tilt in degrees (0° for a level tripod head) |
 
-Pitch and roll are fixed by the 3D-printed mounts and do not need to be entered. -> 3D-printed mounts need to be finalized.
+These are rough starting values. Calibration (Stage 3) lets you fine-tune all six
+live against the physical projection.
 
 Press **Save & Launch** to proceed to calibration.
 
@@ -63,7 +66,7 @@ The calibration scene opens automatically after stage 2. It shows:
 
 - **Left panel (laptop screen):** live preview of what the Camera3D sees inside
   the digital twin.
-- **Right panel:** SpinBoxes for X, Y, Z (metres) and Heading (degrees).
+- **Right panel:** SpinBoxes for X, Y, Z (metres), Heading, Pitch, and Roll (degrees).
   Changes apply to the camera immediately.
 - **Projector (second display):** a fullscreen borderless window showing the
   same camera view on the physical surface. If only one display is connected,
@@ -118,7 +121,7 @@ On FreeBSD you're cooked.
 **`user://projector.json`** — written by the projector panel, same format on
 every machine
 ```json
-{ "x": 3.2, "y": 2.8, "z": 1.1, "heading": -42.0 }
+{ "x": 3.2, "y": 2.8, "z": 1.1, "heading": -42.0, "pitch": -58.0, "roll": 0.5 }
 ```
 
 ---
@@ -205,15 +208,14 @@ TODO:
 
 ---
 
-## 3D-printed mounts (future)
+## Projector mounting
 
-We need to 3D-print a set of mounts for the projectors in order to ensure that they have similar orientations.
-This is such that the only factors that vary between projectors are : physical location, and heading.
+Projectors are mounted on standard camera tripods. Each projector will have a
+different position, heading, pitch, and roll depending on where its tripod is
+placed and how the head is adjusted.
 
-TODO:
-- Physical measurements of projectors ensuring snug fit
-- Tripod head mounting system for the bottoms, such that projectors can be put on tripods.
-- Measure angles of the mounts such that they can be hardcoded. (Good design :>)
+All four values are set in Stage 2 (rough physical measurement) and refined in
+Stage 3 (live calibration against the physical projection surface).
 
 ---
 

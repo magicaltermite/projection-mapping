@@ -41,6 +41,8 @@ var _x_field: LineEdit
 var _y_field: LineEdit
 var _z_field: LineEdit
 var _heading_field: LineEdit
+var _pitch_field: LineEdit
+var _roll_field: LineEdit
 
 func _ready() -> void:
 	var config = _load_json(CONFIG_PATH)
@@ -161,16 +163,21 @@ func _show_projector_panel() -> void:
 			"Y": _y_field = field
 			"Z": _z_field = field
 
-	var heading_row = HBoxContainer.new()
-	vbox.add_child(heading_row)
-	var heading_lbl = Label.new()
-	heading_lbl.text = "Heading (°)"
-	heading_lbl.custom_minimum_size.x = 120
-	heading_row.add_child(heading_lbl)
-	_heading_field = LineEdit.new()
-	_heading_field.placeholder_text = "0.0"
-	_heading_field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	heading_row.add_child(_heading_field)
+	for pair in [["Heading (°)", "0.0"], ["Pitch (°)", "-55.0"], ["Roll (°)", "0.0"]]:
+		var row = HBoxContainer.new()
+		vbox.add_child(row)
+		var lbl = Label.new()
+		lbl.text = pair[0]
+		lbl.custom_minimum_size.x = 120
+		row.add_child(lbl)
+		var field = LineEdit.new()
+		field.placeholder_text = pair[1]
+		field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(field)
+		match pair[0]:
+			"Heading (°)": _heading_field = field
+			"Pitch (°)":   _pitch_field   = field
+			"Roll (°)":    _roll_field    = field
 
 	vbox.add_child(HSeparator.new())
 
@@ -181,10 +188,12 @@ func _show_projector_panel() -> void:
 
 func _on_projector_confirmed() -> void:
 	var proj = {
-		"x": _x_field.text.to_float(),
-		"y": _y_field.text.to_float(),
-		"z": _z_field.text.to_float(),
-		"heading": _heading_field.text.to_float()
+		"x":       _x_field.text.to_float(),
+		"y":       _y_field.text.to_float(),
+		"z":       _z_field.text.to_float(),
+		"heading": _heading_field.text.to_float(),
+		"pitch":   _pitch_field.text.to_float() if not _pitch_field.text.is_empty() else -55.0,
+		"roll":    _roll_field.text.to_float()  if not _roll_field.text.is_empty()  else 0.0,
 	}
 	_save_json(PROJECTOR_CONFIG_PATH, proj)
 	# Make role available to Calibration regardless of server/client path.
