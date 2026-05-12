@@ -268,6 +268,8 @@ projection-mapping/
 | 3b | C a f f e i n e | 是的 |
 | 4 | Calibration scene - dual-display alignment, live SpinBox controls | Done |
 | 5 | Hologram shader - ribbon mesh, scrolling chevrons, bloom | Done |
-| ~6~ | ~~Arduino hook - card scan triggers navigation session~~ | CHANGED |
 | 6 | Chrome on android stand-in (pun intended) for stander | Done |
 | 7 | Populate dict with real card UIDs | In Progress |
+| 8 | Record demo video | Next |
+| 9 | Report writing | In Progress |
+| 10 | Hand-in May 29th '26 | Dread |
