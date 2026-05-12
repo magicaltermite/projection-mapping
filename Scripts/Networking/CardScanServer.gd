@@ -22,7 +22,7 @@ extends Node
 
 const HTTP_PORT = 8080
 
-signal navigation_requested(uid: String)
+signal navigation_requested(uid: String, forced_route: String, resolve: Callable)
 
 var _server: HttpServer
 
@@ -43,15 +43,23 @@ func _ready() -> void:
 	_server.register_router(HttpRouter.new("/navigate", {
 		"post": func(request: HttpRequest, response: HttpResponse) -> bool:
 			var body = JSON.parse_string(request.body)
-			if body == null or not body.has("uid"):
-				response.json(400, {"error": "missing uid"})
+			if body == null:
+				response.json(400, {"error": "invalid json"})
 				return true
-			navigation_requested.emit(body["uid"])
-			# TODO: return resolved destination name once schedule lookup is implemented
-			response.json(200, {"ok": true})
+			var uid: String = body.get("uid", "")
+			var forced_route: String = body.get("route", "")
+			if uid.is_empty() and forced_route.is_empty():
+				response.json(400, {"error": "missing uid or route"})
+				return true
+			var resolve := func(label: String) -> void:
+				if label.is_empty():
+					response.json(500, {"error": "navigation failed"})
+				else:
+					response.json(200, {"ok": true, "destination": label})
+			navigation_requested.emit(uid, forced_route, resolve)
 			return true,
 	}))
 
 	add_child(_server)
 	_server.start()
-	print("[CardScanServer] Listening on port %d  —  open http://<server-ip>:%d/scan on phone" % [HTTP_PORT, HTTP_PORT])
+	print("[CardScanServer] Listening on port %d : open http://<server-ip>:%d/scan on phone" % [HTTP_PORT, HTTP_PORT])

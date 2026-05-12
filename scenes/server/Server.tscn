@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://baemgrgok33xe" path="res://scenes/server/Server.gd" id="1"]
 [ext_resource type="PackedScene" uid="uid://bqx8m30ekgupj" path="res://Assets/tek/TekBuilding.tscn" id="2_giwyf"]
+[ext_resource type="Script" uid="uid://5uxcqi0axbfm" path="res://scenes/shared/PathRenderer.gd" id="3_pr"]
 
 [node name="Server" type="Node3D" unique_id=789814367]
 script = ExtResource("1")
@@ -18,4 +19,22 @@ offset_right = 600.0
 offset_bottom = 40.0
 text = "Starting server..."
 
+[node name="PathRenderer" type="Node3D" parent="." unique_id=828565076]
+script = ExtResource("3_pr")
+
 [node name="NavigationRegion3D" parent="." unique_id=528279629 instance=ExtResource("2_giwyf")]
+
+[node name="StandMarker3D" type="Node3D" parent="NavigationRegion3D" unique_id=220462412]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4893436, 0.7689156, 16.553457)
+
+[node name="CanteenMarker3D" type="Node3D" parent="NavigationRegion3D" unique_id=1180613511]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5387206, 0.7832191, -1.5984482)
+
+[node name="LibraryMarker3D" type="Node3D" parent="NavigationRegion3D" unique_id=1028980148]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.448479, 5.6702223, 31.030027)
+
+[node name="ToiletMarker3D" type="Node3D" parent="NavigationRegion3D" unique_id=2074063865]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.671678, 0.89041966, -1.8610821)
+
+[node name="ClassroomMarker3D" type="Node3D" parent="NavigationRegion3D" unique_id=206821350]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.1610537, 0.7926435, 17.202429)

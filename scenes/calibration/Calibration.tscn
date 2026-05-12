@@ -28,3 +28,18 @@ transform = Transform3D(0.707, -0.5, 0.5, 0, 0.707, 0.707, -0.707, -0.5, 0.5, 0,
 [node name="CalibCamera" type="Camera3D" parent="CalibViewport"]
 
 [node name="TekBuilding" parent="CalibViewport" instance=ExtResource("2")]
+
+[node name="StandMarker3D" type="Node3D" parent="CalibViewport/TekBuilding"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4893436, 0.7689156, 16.553457)
+
+[node name="CanteenMarker3D" type="Node3D" parent="CalibViewport/TekBuilding"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5387206, 0.7832191, -1.5984482)
+
+[node name="LibraryMarker3D" type="Node3D" parent="CalibViewport/TekBuilding"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.448479, 5.6702223, 31.030027)
+
+[node name="ToiletMarker3D" type="Node3D" parent="CalibViewport/TekBuilding"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.671678, 0.89041966, -1.8610821)
+
+[node name="ClassroomMarker3D" type="Node3D" parent="CalibViewport/TekBuilding"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.1610537, 0.7926435, 17.202429)

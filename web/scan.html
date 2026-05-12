@@ -70,6 +70,41 @@
       50%       { opacity: 1;   transform: scale(1.06); }
     }
 
+    .shortcuts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .shortcut-btn {
+      background: #1c1f2b;
+      border: 1px solid #2a2d3a;
+      border-radius: 12px;
+      color: #ccc;
+      font-size: 1rem;
+      padding: 16px 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, border-color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .shortcut-btn:active { background: #252839; border-color: #444; }
+
+    .shortcut-btn .icon { font-size: 1.8rem; line-height: 1; }
+
+    hr.divider {
+      width: 100%;
+      max-width: 320px;
+      border: none;
+      border-top: 1px solid #222;
+    }
+
     details {
       position: fixed;
       bottom: 24px;
@@ -91,6 +126,23 @@
 
   <div id="instruction">Tap screen to activate</div>
   <div id="sub"></div>
+
+  <hr class="divider">
+
+  <div class="shortcuts" onclick="event.stopPropagation()">
+    <button class="shortcut-btn" onclick="navigateTo('to_toilet')">
+      <span class="icon">🚻</span>Toilet
+    </button>
+    <button class="shortcut-btn" onclick="navigateTo('to_canteen')">
+      <span class="icon">🍽️</span>Canteen
+    </button>
+    <button class="shortcut-btn" onclick="navigateTo('to_library')">
+      <span class="icon">📚</span>Library
+    </button>
+    <button class="shortcut-btn" onclick="navigateTo('to_classroom')">
+      <span class="icon">🎓</span>Classroom
+    </button>
+  </div>
 
   <details onclick="event.stopPropagation()">
     <summary>Setup / troubleshooting</summary>
@@ -123,7 +175,7 @@
       if (!('NDEFReader' in window)) {
         setState('error',
           'Web NFC not available.',
-          'Use Chrome on Android — see setup below.'
+          'Use Chrome on Android : see setup below.'
         );
         return;
       }
@@ -132,7 +184,7 @@
         reader = new NDEFReader();
         await reader.scan();
         scanning = true;
-        setState('scanning', 'Hold campus card to phone');
+        setState('scanning', 'Hold studiekort to phone');
 
         reader.addEventListener('reading', ({ serialNumber }) => {
           if (cooldown) return;
@@ -141,7 +193,7 @@
 
         reader.addEventListener('readingerror', () => {
           setState('error', 'Could not read card.', 'Try again.');
-          setTimeout(() => setState('scanning', 'Hold campus card to phone'), 2500);
+          setTimeout(() => setState('scanning', 'Hold studiekort to phone'), 2500);
         });
 
       } catch (e) {
@@ -150,28 +202,27 @@
       }
     }
 
+    async function postNavigate(payload) {
+      const res  = await fetch('/navigate', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload),
+      });
+      return res;
+    }
+
     async function onCardRead(uid) {
       cooldown = true;
       setState('scanning', 'Card detected…', uid);
 
       try {
-        const res  = await fetch('/navigate', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ uid }),
-        });
+        const res  = await postNavigate({ uid });
         const data = await res.json();
 
         if (res.ok && data.ok) {
-          setState('success',
-            '→ ' + (data.destination || 'your destination'),
-            'Follow the light'
-          );
+          setState('success', '→ ' + data.destination, 'Follow the light');
         } else {
-          setState('error',
-            'Card not registered.',
-            data.error || ''
-          );
+          setState('error', 'Studiekort not registered.', data.error || '');
         }
       } catch (fetchErr) {
         setState('error', 'Server unreachable.', fetchErr.message);
@@ -179,7 +230,30 @@
 
       setTimeout(() => {
         cooldown = false;
-        setState('scanning', 'Hold campus card to phone');
+        setState('scanning', 'Hold studiekort to phone');
+      }, 3500);
+    }
+
+    async function navigateTo(route) {
+      try {
+        const res  = await postNavigate({ route });
+        const data = await res.json();
+
+        if (res.ok && data.ok) {
+          setState('success', '→ ' + data.destination, 'Follow the light');
+        } else {
+          setState('error', 'Navigation failed.', data.error || '');
+        }
+      } catch (fetchErr) {
+        setState('error', 'Server unreachable.', fetchErr.message);
+      }
+
+      setTimeout(() => {
+        if (scanning) {
+          setState('scanning', 'Hold studiekort to phone');
+        } else {
+          setState('idle', 'Tap screen to activate');
+        }
       }, 3500);
     }
   </script>

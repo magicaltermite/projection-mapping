@@ -20,12 +20,15 @@ const PROJECTOR_CONFIG_PATH = "user://projector.json"
 
 var MOUNT_PITCH: float = -52
 var MOUNT_ROLL: float = 0
+var _proj_window: Window = null
+var _proj_viewport: SubViewport = null
 
 func _ready() -> void:
 	Network.connected_to_server.connect(_on_connected)
 	Network.disconnected_from_server.connect(_on_disconnected)
 	SessionState.state_updated.connect(_on_state_updated)
 	_apply_projector_transform()
+	_spawn_projector_window()
 	_connect_to_server()
 
 func _apply_projector_transform() -> void:
@@ -34,6 +37,52 @@ func _apply_projector_transform() -> void:
 	file.close()
 	_camera.position = Vector3(proj.get("x", 0.0), proj.get("y", 0.0), proj.get("z", 0.0))
 	_camera.rotation_degrees = Vector3(MOUNT_PITCH, proj.get("heading", 0.0), MOUNT_ROLL)
+
+func _spawn_projector_window() -> void:
+	if OS.has_feature("editor"):
+		print("[Client] Editor : skipping projector window")
+		return
+	var screen_count := DisplayServer.get_screen_count()
+	if screen_count < 2:
+		print("[Client] Single display : projector window skipped")
+		return
+	var proj_screen := screen_count - 1
+	DisplayServer.window_set_current_screen(0)
+
+	_proj_viewport = SubViewport.new()
+	_proj_viewport.size = DisplayServer.screen_get_size(proj_screen)
+	_proj_viewport.own_world_3d = false
+	_proj_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	add_child(_proj_viewport)
+
+	var proj_cam := Camera3D.new()
+	proj_cam.transform = _camera.global_transform
+	proj_cam.fov = _camera.fov
+	proj_cam.near = _camera.near
+	proj_cam.far = _camera.far
+	_proj_viewport.add_child(proj_cam)
+
+	_proj_window = Window.new()
+	_proj_window.unfocusable = true
+	_proj_window.borderless = true
+	_proj_window.current_screen = proj_screen
+	_proj_window.mode = Window.MODE_FULLSCREEN
+	get_tree().root.add_child(_proj_window)
+	_proj_window.show()
+
+	var tex_rect := TextureRect.new()
+	tex_rect.texture = _proj_viewport.get_texture()
+	tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tex_rect.stretch_mode = TextureRect.STRETCH_SCALE
+	tex_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_proj_window.add_child(tex_rect)
+
+	print("[Client] Projector window on screen %d" % proj_screen)
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		if _proj_window and is_instance_valid(_proj_window):
+			_proj_window.queue_free()
 
 func _connect_to_server() -> void:
 	var ip: String = SessionState.client_config.get("server_ip", "127.0.0.1")

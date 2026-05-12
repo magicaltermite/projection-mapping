@@ -43,7 +43,7 @@ func _notification(what: int) -> void:
 		_cleanup_window()
 
 
-# ── Config ────────────────────────────────────────────────────────────────────
+# Configuration --------------------------------
 
 func _load_projector_config() -> Dictionary:
 	if not FileAccess.file_exists(PROJECTOR_CONFIG_PATH):
@@ -68,7 +68,11 @@ func _save_projector_config() -> void:
 	file.close()
 
 
-# ── Camera ────────────────────────────────────────────────────────────────────
+# Camera --------------------------------
+
+func _mount_pitch() -> float:
+	var role: String = SessionState.client_config.get("role", "server")
+	return -56.0 if role == "server" else -52.0
 
 func _apply_camera(proj: Dictionary) -> void:
 	_camera.position = Vector3(
@@ -76,15 +80,15 @@ func _apply_camera(proj: Dictionary) -> void:
 		proj.get("y", 0.0),
 		proj.get("z", 0.0)
 	)
-	_camera.rotation_degrees.y = proj.get("heading", 0.0)
+	_camera.rotation_degrees = Vector3(_mount_pitch(), proj.get("heading", 0.0), 0.0)
 
 
 func _on_value_changed(_v: float) -> void:
 	_camera.position = Vector3(_x_spin.value, _y_spin.value, _z_spin.value)
-	_camera.rotation_degrees.y = _heading_spin.value
+	_camera.rotation_degrees = Vector3(_mount_pitch(), _heading_spin.value, 0.0)
 
 
-# ── Projector window ──────────────────────────────────────────────────────────
+# Projector window --------------------------------
 
 func _spawn_projector_window() -> void:
 	var screen_count := DisplayServer.get_screen_count()
@@ -123,7 +127,7 @@ func _cleanup_window() -> void:
 		_proj_window = null
 
 
-# ── Laptop UI ─────────────────────────────────────────────────────────────────
+# Backend UI --------------------------------
 
 func _build_laptop_ui(proj: Dictionary) -> void:
 	var canvas := CanvasLayer.new()
@@ -133,7 +137,7 @@ func _build_laptop_ui(proj: Dictionary) -> void:
 	var vp := get_viewport().get_visible_rect().size
 	var split_x := int(vp.x * 0.55)
 
-	# Left — camera preview
+	# Left -> camera preview
 	var preview := TextureRect.new()
 	preview.position = Vector2.ZERO
 	preview.size = Vector2(split_x, vp.y)
@@ -142,7 +146,7 @@ func _build_laptop_ui(proj: Dictionary) -> void:
 	preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	canvas.add_child(preview)
 
-	# Right — control panel
+	# Right -> control panel
 	var panel_w := vp.x - split_x
 	var panel := Panel.new()
 	panel.position = Vector2(split_x, 0)
