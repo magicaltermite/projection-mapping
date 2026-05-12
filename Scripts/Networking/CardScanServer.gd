@@ -51,12 +51,19 @@ func _ready() -> void:
 			if uid.is_empty() and forced_route.is_empty():
 				response.json(400, {"error": "missing uid or route"})
 				return true
+			# emit_signal is not allowed from the HTTP thread — defer to main
+			# thread and block here until Server.gd resolves the destination.
+			var sem := Semaphore.new()
+			var dest_label := ""
 			var resolve := func(label: String) -> void:
-				if label.is_empty():
-					response.json(500, {"error": "navigation failed"})
-				else:
-					response.json(200, {"ok": true, "destination": label})
-			navigation_requested.emit(uid, forced_route, resolve)
+				dest_label = label
+				sem.post()
+			(func(): navigation_requested.emit(uid, forced_route, resolve)).call_deferred()
+			sem.wait()
+			if dest_label.is_empty():
+				response.json(500, {"error": "navigation failed"})
+			else:
+				response.json(200, {"ok": true, "destination": dest_label})
 			return true,
 	}))
 

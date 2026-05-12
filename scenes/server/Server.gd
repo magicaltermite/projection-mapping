@@ -43,7 +43,7 @@ const ROUTES: Dictionary = {
 # Map NFC UIDs to route keys. UID is printed to console on first scan.
 # Replace placeholders before the demo.
 const UID_ROUTES: Dictionary = {
-	"00:00:00:01": "to_classroom",  # TODO Member 1
+	"54:BE:00:F8": "to_classroom",  # TODO Member 1
 	"00:00:00:02": "to_classroom",  # TODO Member 2
 	"00:00:00:03": "to_classroom",  # TODO Member 3
 }
