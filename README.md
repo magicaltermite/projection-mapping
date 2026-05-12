@@ -264,9 +264,10 @@ projection-mapping/
 |---|---|---|
 | 1 | Bootstrap, Network, Server/Client scaffold | Done |
 | 2 | Digital twin in Server.tscn, path computation, path sync | Done |
-| 3 | PathRenderer - debug line rendering from projector camera | Next |
+| 3 | PathRenderer - debug line rendering from projector camera | Done |
 | 3b | C a f f e i n e | 是的 |
 | 4 | Calibration scene - dual-display alignment, live SpinBox controls | Done |
-| 5 | Hologram shader - ribbon mesh, scrolling chevrons, bloom | - |
+| 5 | Hologram shader - ribbon mesh, scrolling chevrons, bloom | Done |
 | ~6~ | ~~Arduino hook - card scan triggers navigation session~~ | CHANGED |
-| 6 | Chrome on android stand-in (pun intended) for stander | In Progress |
+| 6 | Chrome on android stand-in (pun intended) for stander | Done |
+| 7 | Populate dict with real card UIDs | In Progress |
