@@ -8,6 +8,7 @@
 script = ExtResource("1")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=192356866]
+fov = 32.0
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=932933236]
 
@@ -18,22 +19,22 @@ offset_right = 600.0
 offset_bottom = 40.0
 text = "Connecting..."
 
-[node name="PathRenderer" type="Node3D" parent="."]
+[node name="PathRenderer" type="Node3D" parent="." unique_id=1647897945]
 script = ExtResource("3_pr")
 
 [node name="NavigationRegion3D" parent="." unique_id=528279629 instance=ExtResource("2_6x2bf")]
 
-[node name="StandMarker3D" type="Node3D" parent="NavigationRegion3D"]
+[node name="StandMarker3D" type="Node3D" parent="NavigationRegion3D" unique_id=305178280]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4893436, 0.7689156, 16.553457)
 
-[node name="CanteenMarker3D" type="Node3D" parent="NavigationRegion3D"]
+[node name="CanteenMarker3D" type="Node3D" parent="NavigationRegion3D" unique_id=780449681]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.5387206, 0.7832191, -1.5984482)
 
-[node name="LibraryMarker3D" type="Node3D" parent="NavigationRegion3D"]
+[node name="LibraryMarker3D" type="Node3D" parent="NavigationRegion3D" unique_id=573532049]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.448479, 5.6702223, 31.030027)
 
-[node name="ToiletMarker3D" type="Node3D" parent="NavigationRegion3D"]
+[node name="ToiletMarker3D" type="Node3D" parent="NavigationRegion3D" unique_id=1650206634]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.671678, 0.89041966, -1.8610821)
 
-[node name="ClassroomMarker3D" type="Node3D" parent="NavigationRegion3D"]
+[node name="ClassroomMarker3D" type="Node3D" parent="NavigationRegion3D" unique_id=2083782677]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.1610537, 0.7926435, 17.202429)
