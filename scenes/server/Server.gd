@@ -61,7 +61,6 @@ var _proj_viewport: SubViewport = null
 @onready var _stand: Node3D = $NavigationRegion3D/StandMarker3D
 
 func _ready() -> void:
-	NavigationServer3D.set_debug_enabled(true)
 	_apply_projector_transform()
 	_spawn_projector_window()
 	var err = Network.start_server()
@@ -151,8 +150,15 @@ func _notification(what: int) -> void:
 		if _proj_window and is_instance_valid(_proj_window):
 			_proj_window.queue_free()
 
+func _get_local_ip() -> String:
+	for addr in IP.get_local_addresses():
+		if ":" in addr or addr.begins_with("127."):
+			continue
+		return addr
+	return "?.?.?.?"
+
 func _refresh_status() -> void:
-	_status.text = "Server running  |  clients: %d" % _client_count
+	_status.text = "Server  |  %s  |  Clients: %d" % [_get_local_ip(), _client_count]
 
 func broadcast_state() -> void:
 	SessionState.push_to_clients()
