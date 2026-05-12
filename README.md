@@ -217,6 +217,20 @@ placed and how the head is adjusted.
 All four values are set in Stage 2 (rough physical measurement) and refined in
 Stage 3 (live calibration against the physical projection surface).
 
+To understand the specific projectors we are working with we calculated the 
+angles of the light projection to make the pictrue sharp. By doing so we can 
+make the communication between the cameras in the game engine and the 
+projectors clear and thereby minimize places the picture will be misfitted. 
+To do this we used the arctan formula: angle A = arctan(a/b) and angle 
+B = arctan(b/a)
+
+Since we know one angle to be 90 and the a side to be 129 and the b side to be 
+37 the know values could simply be put into the formula mentioned:
+
+A = arctan(129/37) = arctan(3.486) ≈ 74
+Since we know that one angle is 90 we can just subtract A from 90 to find B:
+B = 90-74 = 16
+
 ---
 
 ## Project structure
